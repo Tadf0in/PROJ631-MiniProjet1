@@ -7,7 +7,7 @@ def read_file(file_name:str) -> str:
         print("File not found")
 
 
-def dates2dic(dates):
+def dates2dic(dates:str) -> dict:
     dic = {}
     splitted_dates = dates.split("\n")
     for stop_dates in splitted_dates:
@@ -19,10 +19,10 @@ def dates2dic(dates):
 def get_data(data_file_name:str) -> dict:
     content = read_file(data_file_name)
     splited_content = content.split("\n\n")
-    regular_path = splited_content[0]
+    regular_path = splited_content[0].split(' N ')
     regular_date_go = dates2dic(splited_content[1])
     regular_date_back = dates2dic(splited_content[2])
-    we_holidays_path = splited_content[3]
+    we_holidays_path = splited_content[3].split(' N ')
     we_holidays_date_go = dates2dic(splited_content[4])
     we_holidays_date_back = dates2dic(splited_content[5])
     return {
