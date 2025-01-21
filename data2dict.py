@@ -36,12 +36,12 @@ def get_data(data_file_name:str) -> dict:
 
 
 if __name__ == '__main__':
-    data_file_name = 'data/1_Poisy-ParcDesGlaisins.txt' 
-    #data_file_name = 'data/2_Piscine-Patinoire_Campus.txt'
-    #data_file_name = 'data/4_Seynod_Neigeos-Campus.txt'
+    data_file_name = 'data/sibra/1_Poisy-ParcDesGlaisins.txt' 
+    #data_file_name = 'data/sibra/2_Piscine-Patinoire_Campus.txt'
+    #data_file_name = 'data/sibra/4_Seynod_Neigeos-Campus.txt'
     
     data = get_data(data_file_name)
     
     # print("regular_path", data['regular_path'])
-    print("regular_date_go", data['regular_date_go'])
-    # print("regular_date_back", data['regular_date_back'])
+    # print("regular_date_go", data['regular_date_go'])
+    print("regular_date_back", data['regular_date_back'])
