@@ -1,8 +1,8 @@
 class Stop:
     def __init__(self, name:str, line:object):
         self._name = name
-        self._previous = []
-        self._next = []
+        self._previous = [] # [[stop, line], [stop, line], ...]
+        self._next = [] # [[stop, line], [stop, line], ...]
         self._line = [line] 
     
     @property
@@ -42,9 +42,9 @@ class Stop:
     
     
     def getNextStopOnLine(self, line:object) -> object:
-        for next in self.next:
-            if line in next.line:
-                return next
+        for next_stop, next_line in self.next:
+            if next_line == line:
+                return next_stop
     
     
     def mergeStop(self, other_stop:object):        
@@ -53,14 +53,14 @@ class Stop:
         self.line.extend(other_stop.line)
         
         for previous in other_stop.previous:
-            for i, next in enumerate(previous.next):
-                if next == other_stop:
-                    previous.next[i] = self
+            for next in previous[0].next:
+                if next[0] == other_stop:
+                    next[0] = self
         
         for next in other_stop.next:
-            for i, previous in enumerate(next.previous):
-                if previous == other_stop:
-                    next.previous[i] = self
+            for previous in next[0].previous:
+                if previous[0] == other_stop:
+                    previous[0] = self
         
         for line in other_stop.line:
             if line.start == other_stop:
