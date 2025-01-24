@@ -1,8 +1,9 @@
 from Stop import Stop
 
 class Line:
-    def __init__(self, name:str, data:dict):
+    def __init__(self, name:str, data:dict, color:str='black'):
         self._name = name
+        self._color = color
         
         start_name = data['regular_path'][0]
         self._start = Stop(start_name, self)
@@ -18,6 +19,14 @@ class Line:
     @property
     def name(self):
         return self._name
+    
+    @property
+    def color(self):
+        return self._color
+    
+    @color.setter
+    def color(self, value):
+        self._color = value
 
     @property
     def start(self):

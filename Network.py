@@ -30,6 +30,15 @@ class Network:
         for stop in duplicate_stops:
             for duplicated in stop[1:]:
                 stop[0].mergeStop(duplicated)
+                
+    
+    @property
+    def lines(self):
+        return self._lines
+    
+    @lines.setter
+    def lines(self, value):
+        self._lines = value
             
 
     def getAllStops(self) -> list[Stop]:
