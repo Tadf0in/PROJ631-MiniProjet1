@@ -1,8 +1,8 @@
 class Stop:
     def __init__(self, name:str, line:object):
         self._name = name
-        self._previous = [] # [stop, regular_time, holidays_time]
-        self._next = [] # [stop, regular_time, holidays_time]
+        self._previous = []
+        self._next = []
         self._line = [line] 
     
     @property
@@ -38,32 +38,32 @@ class Stop:
         self._line = value
     
     def __repr__(self):
-        return self._name
+        return self._name + str(self._line)
     
     
     def getNextStopOnLine(self, line:object) -> object:
-        for next in self._next:
-            if line in next[0].line:
-                return next[0]
+        for next in self.next:
+            if line in next.line:
+                return next
     
     
-    def mergeStop(self, other_stop:object):
-        self._previous.extend(other_stop.previous)
-        self._next.extend(other_stop.next)
-        self._line.extend(other_stop.line)
+    def mergeStop(self, other_stop:object):        
+        self.previous.extend(other_stop.previous)
+        self.next.extend(other_stop.next)
+        self.line.extend(other_stop.line)
         
         for previous in other_stop.previous:
-            for next in previous[0].next:
-                if next[0] == other_stop:
-                    next[0] = self
+            for i, next in enumerate(previous.next):
+                if next == other_stop:
+                    previous.next[i] = self
         
         for next in other_stop.next:
-            for previous in next[0].previous:
-                if previous[0] == other_stop:
-                    previous[0] = self
+            for i, previous in enumerate(next.previous):
+                if previous == other_stop:
+                    next.previous[i] = self
         
         for line in other_stop.line:
-            if line.start[0] == other_stop:
-                line.start = (self, line.start[1])
-            if line.end[0] == other_stop:
-                line.end = (self, line.end[1])
+            if line.start == other_stop:
+                line.start = self
+            if line.end == other_stop:
+                line.end = self

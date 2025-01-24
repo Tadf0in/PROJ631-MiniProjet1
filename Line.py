@@ -6,15 +6,15 @@ class Line:
         self._network = network
         
         start_name = data['regular_path'][0]
-        self._start = (Stop(start_name, self), data['regular_date_go'][start_name])
-        current = self._start[0]
+        self._start = Stop(start_name, self)
+        current = self._start
         for stop_name in data['regular_path'][1:]:
             stop = Stop(stop_name, self)
-            current.next.append([stop, data['regular_date_go'][stop_name], data['we_holidays_date_go'][stop_name]])
-            stop.previous.append([current, data['regular_date_back'][current.name], data['we_holidays_date_back'][current.name]])
+            current.next.append(stop)
+            stop.previous.append(current)
             current = stop
         
-        self._end = (current, data['regular_date_back'][current.name])
+        self._end = current
         
     @property
     def name(self):
@@ -41,8 +41,8 @@ class Line:
     
     
     def _parcours(self):
-        current = self._start[0]
-        while current != self._end[0]:
+        current = self.start
+        while current != self.end:
             yield current
             current = current.getNextStopOnLine(self)
         yield current
@@ -53,18 +53,9 @@ class Line:
     
     
     def getStop(self, name:str) -> Stop:
-        stop = self._start[0]
+        stop = self.start
         while stop.next != []:
             if stop.name == name:
                 return stop
             stop = stop.getNextStopOnLine(self)
-            
-            
-    def parcours(self, start_name:str, end_name:str, date:str) -> list[str]:
-        end = self.getStop(end_name)
-        
-        current = self.getStop(start_name)
-        while current != end:
-            print(current)
-            current = current.getNextStopOnLine(self)
         

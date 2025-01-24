@@ -6,14 +6,14 @@ from Stop import Stop
 class Network:
     def __init__(self, folder_path:str):
         # Crée les lignes
-        self._lines = []
+        self._lines:list[Line] = []
         for filename in os.listdir(folder_path):
             data = data2dict.get_data(folder_path + filename)
             line_name = filename.removesuffix('.txt')
             line = Line(line_name, self, data)
-            self._lines.append(line)
+            self._lines.append(line)        
         
-        # Récupère les arrêts en doublon
+        # Récupère les arrêts en doublon (instances différentes mais représentants le même arrêt)
         count_stops = {}
         for stop in self.getAllStops():
             if stop.name in count_stops:
@@ -36,7 +36,17 @@ class Network:
         stops = []
         for line in self._lines:
             stops.extend(line.getAllStopsOnLine())
-            
+        
+        print(stops)
+        
+        # Supprime les doublons (doublons d'une même instance)
+        unique_stops = set()
+        for stop in stops:
+            unique_stops.add(stop)
+        print(unique_stops)
+        stops = list(unique_stops)
+        print(stops)
+                
         return stops
     
 
