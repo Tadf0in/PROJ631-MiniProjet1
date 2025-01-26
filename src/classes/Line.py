@@ -1,4 +1,4 @@
-from Stop import Stop
+from .Stop import Stop
 
 class Line:
     def __init__(self, name:str, data:dict, color:str='black'):

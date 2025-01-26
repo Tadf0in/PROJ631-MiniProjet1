@@ -1,14 +1,14 @@
 import os
-import data2dict
-from Line import Line
-from Stop import Stop
+from .data2dict import get_data
+from .Line import Line
+from .Stop import Stop
 
 class Network:
     def __init__(self, folder_path:str):
         # Crée les lignes
         self._lines:list[Line] = []
         for filename in os.listdir(folder_path):
-            data = data2dict.get_data(folder_path + filename)
+            data = get_data(folder_path + filename)
             line_name = filename.removesuffix('.txt')
             line = Line(line_name, data)
             self._lines.append(line)        
