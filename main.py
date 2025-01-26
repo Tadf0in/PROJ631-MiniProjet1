@@ -1,12 +1,14 @@
 from src.classes.Network import Network
-import networkx as nx
 import os
+import networkx as nx
 import matplotlib.pyplot as plt
 
-sibra = Network(os.path.join(os.path.dirname(__file__) + '\src\data', 'sibra'))
-exemple = Network(os.path.join(os.path.dirname(__file__) + '\src\data', 'exemple'))
 
-def draw_graph(network):
+sibra = Network(os.path.join(os.path.dirname(__file__), 'src/data/sibra'))
+exemple = Network(os.path.join(os.path.dirname(__file__), 'src/data/exemple'))
+
+
+def draw_graph(network):        
     def margin_name(name, margin=3):
         return " " * margin + name
     
@@ -37,8 +39,8 @@ def draw_graph(network):
         plt.legend(loc='lower left')
 
     plt.show()
-        
-    
+
+
 # exemple.lines[0].color = 'b'
 # exemple.lines[1].color = 'r'
 # exemple.lines[2].color = 'g'
@@ -48,3 +50,13 @@ sibra.lines[0].color = 'g'
 sibra.lines[1].color = 'r'
 sibra.lines[2].color = 'b'
 draw_graph(sibra)
+
+###############################################################
+
+
+import tkinter as tk
+from src.gui.MainWindow import MainWindow
+
+root = tk.Tk()
+app = MainWindow(root)
+root.mainloop()
