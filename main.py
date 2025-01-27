@@ -46,10 +46,10 @@ def draw_graph(network):
 # exemple.lines[2].color = 'g'
 # draw_graph(exemple)
 
-sibra.lines[0].color = 'g'
-sibra.lines[1].color = 'r'
-sibra.lines[2].color = 'b'
-draw_graph(sibra)
+# sibra.lines[0].color = 'g'
+# sibra.lines[1].color = 'r'
+# sibra.lines[2].color = 'b'
+# draw_graph(sibra)
 
 ###############################################################
 
