@@ -134,8 +134,7 @@ class Line:
                 current = current.getNextStopOnLine(self)
             
         # Supprime tous les arrêts d'après (du précédent l'arrêt à déplacer, juqu'à la fin)
-        other_stops = self.getAllStopsOnLine()
-        
+        other_stops = self.getAllStopsOnLine() 
         for other_stop in self.getAllStopsOnLine():
             if other_stop.name in ok_stops_names:
                 other_stops.remove(other_stop)
@@ -155,4 +154,9 @@ class Line:
             self.addStop(other_stop.name, check_merge=False)
                 
         self.network.mergeDuplicateStops()
+        
+    def moveDownStop(self, stop:Stop):
+        next_stop = stop.getNextStopOnLine(self)
+        if next_stop:
+            self.moveUpStop(next_stop)
                 
