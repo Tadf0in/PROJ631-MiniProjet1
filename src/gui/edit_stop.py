@@ -47,6 +47,20 @@ def change_line_color(main_window, event=None):
         main_window.error_message.set("")
 
 
+def verif_selected(main_window, selected_line) -> object:
+    if not selected_line:
+        main_window.error_message.set("Aucune ligne sélectionnée")
+        return
+    
+    selected_stop_index = main_window.stops_listbox.curselection()
+    if not selected_stop_index:
+        main_window.error_message.set("Aucun arrêt sélectionnée")
+        return
+    selected_stop = selected_line.getAllStopsOnLine()[selected_stop_index[0]]
+    
+    return selected_stop
+
+
 def add_stop(main_window, selected_line):
     if not selected_line:
         main_window.error_message.set("Aucune ligne sélectionnée")
@@ -64,7 +78,7 @@ def add_stop(main_window, selected_line):
     def save_stop_name():
         stop_name = stop_name_entry.get()
         if stop_name:
-            selected_line.addStop(stop_name)
+            selected_line.addStop(stop_name, date={})
             update_stops_listbox(main_window)
             popup.destroy()
             main_window.error_message.set("")
@@ -76,15 +90,9 @@ def add_stop(main_window, selected_line):
     
 
 def remove_stop(main_window, selected_line):
-    if not selected_line:
-        main_window.error_message.set("Aucune ligne sélectionnée")
+    selected_stop = verif_selected()
+    if not selected_stop:
         return
-    
-    selected_stop_index = main_window.stops_listbox.curselection()
-    if not selected_stop_index:
-        main_window.error_message.set("Aucun arrêt sélectionnée")
-        return
-    selected_stop = selected_line.getAllStopsOnLine()[selected_stop_index[0]]
 
     selected_line.removeStop(selected_stop)
     if selected_line.start == None:
@@ -94,15 +102,9 @@ def remove_stop(main_window, selected_line):
 
 
 def move_up_stop(main_window, selected_line):
-    if not selected_line:
-        main_window.error_message.set("Aucune ligne sélectionnée")
+    selected_stop = verif_selected()
+    if not selected_stop:
         return
-    
-    selected_stop_index = main_window.stops_listbox.curselection()
-    if not selected_stop_index:
-        main_window.error_message.set("Aucun arrêt sélectionnée")
-        return
-    selected_stop = selected_line.getAllStopsOnLine()[selected_stop_index[0]]
 
     selected_line.moveUpStop(selected_stop)
     update_stops_listbox(main_window)
@@ -110,17 +112,39 @@ def move_up_stop(main_window, selected_line):
     
 
 def move_down_stop(main_window, selected_line):
-    if not selected_line:
-        main_window.error_message.set("Aucune ligne sélectionnée")
+    selected_stop = verif_selected()
+    if not selected_stop:
         return
-    
-    selected_stop_index = main_window.stops_listbox.curselection()
-    if not selected_stop_index:
-        main_window.error_message.set("Aucun arrêt sélectionnée")
-        return
-    selected_stop = selected_line.getAllStopsOnLine()[selected_stop_index[0]]
 
     selected_line.moveDownStop(selected_stop)
     update_stops_listbox(main_window)
     main_window.error_message.set("")
 
+
+def edit_date_stop(main_window, selected_line):
+    selected_stop = verif_selected()
+    if not selected_stop:
+        return
+    
+    popup = tk.Toplevel(main_window.root)
+    popup.title("Modifier les horaires de l'arrêt")
+
+    for i, (key, value) in enumerate(selected_stop.date[selected_line].items()):
+        label = tk.Label(popup, text=key)
+        label.grid(row=0, column=i+1, padx=10, pady=10)
+
+        entry = tk.Entry(popup)
+        entry.insert(0, value)
+        entry.grid(row=1, column=i+1, padx=10, pady=10)
+        entry.key = key
+
+    def save_dates():
+        for widget in popup.winfo_children():
+            if isinstance(widget, tk.Entry):
+                selected_stop.date[selected_line][widget.key] = widget.get()
+        update_stops_listbox(main_window)
+        popup.destroy()
+        main_window.error_message.set("")
+
+    save_button = tk.Button(popup, text="Enregistrer", command=save_dates)
+    save_button.grid(row=2, columnspan=len(selected_stop.date[selected_line]), pady=10)

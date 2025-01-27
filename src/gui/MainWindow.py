@@ -51,6 +51,9 @@ class MainWindow:
 
         self.move_down_stop_button = tk.Button(self.root, text="V", command=lambda: move_down_stop(self, self.selected_line))
         self.move_down_stop_button.pack(pady=5, padx=5, side="left")
+        
+        self.edit_stop_button = tk.Button(self.root, text="Modifier", command=lambda: edit_date_stop(self, self.selected_line))
+        self.edit_stop_button.pack(pady=5, padx=5, side="left")
 
 
     def show_graph(self):

@@ -4,18 +4,21 @@ class Line:
     def __init__(self, name:str, data:dict, network:object, color:str='black'):
         self._name = name
         self._color = color
+        self._data = data
         self._network = network
         
         start_name = data['regular_path'][0]
-        self._start = Stop(start_name, self)
-        current = self._start
-        for stop_name in data['regular_path'][1:]:
-            stop = Stop(stop_name, self)
-            current.next.append([stop, self])
-            stop.previous.append([current, self])
-            current = stop
-        
-        self._end = current
+        self._start = Stop(start_name, self, data)
+        self._end = self._start
+        for i, stop_name in enumerate(data['regular_path'][1:], 1):
+            date = {
+                'regular_date_go': data['regular_date_go'][i],
+                'regular_date_back': data['regular_date_back'][i],
+                'we_holidays_date_go': data['we_holidays_date_go'][i],
+                'we_holidays_date_back': data['we_holidays_date_back'][i],
+            }
+            self.addStop(stop_name, date, check_merge=False)
+            
         
     @property
     def name(self):
@@ -32,6 +35,14 @@ class Line:
     @color.setter
     def color(self, value):
         self._color = value
+        
+    @property
+    def data(self):
+        return self._data
+    
+    @data.setter
+    def data(self, value):
+        self._data = value
 
     @property
     def network(self):
@@ -73,8 +84,8 @@ class Line:
         return [stop for stop in self._parcours()]
     
     
-    def addStop(self, stop_name, check_merge=True):
-        stop = Stop(stop_name, self)
+    def addStop(self, stop_name, date: dict, check_merge=True):
+        stop = Stop(stop_name, self, date)
         self.end.next.append([stop, self])
         stop.previous.append([self.end, self])
         self.end = stop
@@ -143,17 +154,18 @@ class Line:
 
         if old_start:
             # Réajoute l'ancien départ supprimé
-            self.addStop(old_start.name, check_merge=False)
+            self.addStop(old_start.name, old_start.date, check_merge=False)
         else:
             # Ajoute l'arrêt à déplacer
-            self.addStop(stop.name, check_merge=False)
+            self.addStop(stop.name, stop.date, check_merge=False)
             other_stops.remove(stop)
         
         # Réajoute les autre arrêts
         for other_stop in other_stops:
-            self.addStop(other_stop.name, check_merge=False)
+            self.addStop(other_stop.name, other_stop.date, check_merge=False)
                 
         self.network.mergeDuplicateStops()
+        
         
     def moveDownStop(self, stop:Stop):
         next_stop = stop.getNextStopOnLine(self)

@@ -1,9 +1,12 @@
 class Stop:
-    def __init__(self, name:str, line:object):
+    def __init__(self, name:str, line:object, date:dict):
         self._name = name
         self._previous = [] # [[stop, line], [stop, line], ...]
         self._next = [] # [[stop, line], [stop, line], ...]
         self._line = [line] 
+        self._date = {
+            line: date
+        }
     
     @property
     def name(self):
@@ -36,6 +39,14 @@ class Stop:
     @line.setter
     def line(self, value):
         self._line = value
+        
+    @property
+    def date(self):
+        return self._date
+
+    @date.setter
+    def date(self, value):
+        self._date = value
     
     def __repr__(self):
         return self._name + str(self._line)
