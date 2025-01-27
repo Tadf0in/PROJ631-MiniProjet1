@@ -45,6 +45,12 @@ class Stop:
         for next_stop, next_line in self.next:
             if next_line == line:
                 return next_stop
+            
+            
+    def getPreviousStopOnLine(self, line:object) -> object:
+        for previous_stop, previous_line in self.previous:
+            if previous_line == line:
+                return previous_stop
     
     
     def mergeStop(self, other_stop:object):        

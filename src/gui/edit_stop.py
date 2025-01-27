@@ -1,14 +1,12 @@
 import tkinter as tk
 
 
-def add_stop(self, selected_line):
+def add_stop(main_window, selected_line):
     if not selected_line:
-        self.error_message.set("Aucune ligne sélectionnée")
+        main_window.error_message.set("Aucune ligne sélectionnée")
         return
-    
-    print(selected_line)
 
-    popup = tk.Toplevel(self.root)
+    popup = tk.Toplevel(main_window.root)
     popup.title("Ajouter un arrêt")
     
     label = tk.Label(popup, text="Nom de l'arrêt :")
@@ -21,35 +19,37 @@ def add_stop(self, selected_line):
         stop_name = stop_name_entry.get()
         if stop_name:
             selected_line.addStop(stop_name)
-            self.update_stops_listbox()
+            main_window.stops_listbox.insert(tk.END, stop_name)
             popup.destroy()
-            self.error_message.set("")
+            main_window.error_message.set("")
         else:
-            self.error_message.set("Le nom de l'arrêt ne peut pas être vide")
+            main_window.error_message.set("Le nom de l'arrêt ne peut pas être vide")
 
     save_button = tk.Button(popup, text="Ajouter", command=save_stop_name)
     save_button.pack(pady=10)
     
 
-
-def remove_stop(self, selected_line):
+def remove_stop(main_window, selected_line):
     if not selected_line:
-        self.error_message.set("Aucune ligne sélectionnée")
+        main_window.error_message.set("Aucune ligne sélectionnée")
         return
     
-    selected_stop_index = self.stops_listbox.curselection()
+    selected_stop_index = main_window.stops_listbox.curselection()
     if not selected_stop_index:
-        self.error_message.set("Aucun arrêt sélectionnée")
+        main_window.error_message.set("Aucun arrêt sélectionnée")
         return
     selected_stop = selected_line.getAllStopsOnLine()[selected_stop_index[0]]
-    
-    print(selected_stop)
+
+    selected_line.removeStop(selected_stop)
+    main_window.update_lines_listbox()
+    main_window.update_stops_listbox()
+    main_window.error_message.set("")
 
 
-def move_up_stop(self, selected_line):
+def move_up_stop(main_window, selected_line):
     pass
 
 
-def move_down_stop(self, selected_line):
+def move_down_stop(main_window, selected_line):
     pass
 

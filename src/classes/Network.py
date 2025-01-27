@@ -36,6 +36,12 @@ class Network:
         return stops
     
     
+    def getStop(self, name: str) -> Stop:
+        for stop in self.getAllStops():
+            if stop.name == name:
+                return stop
+    
+    
     def mergeDuplicateStops(self):
         # Récupère les arrêts en doublon (instances différentes mais représentants le même arrêt)
         count_stops = {}
@@ -54,6 +60,7 @@ class Network:
         for stop in duplicate_stops:
             for duplicated in stop[1:]:
                 stop[0].mergeStop(duplicated)
+    
     
     # def dijkstra(self, start: str, end: str) -> list[str]:
     #     # Create a dictionary to store the shortest path to each stop
@@ -88,12 +95,7 @@ class Network:
     #         stop = next_stop
 
     #     return path[::-1]
-
-    # def getStop(self, name: str) -> Stop:
-    #     for stop in self.getAllStops():
-    #         if stop.name == name:
-    #             return stop
-    #     return None
+    
 
     def shortest_path(self, start:str, end:str) -> list[str]:
         pass

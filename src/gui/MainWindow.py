@@ -101,6 +101,7 @@ class MainWindow:
             self.lines_listbox.insert(tk.END, line.name)
         
         self.error_message.set("")
+        self.stops_listbox.delete(0, tk.END)
 
 
     def update_stops_listbox(self, event=None):
@@ -114,6 +115,7 @@ class MainWindow:
             self.stops_listbox.insert(tk.END, stop.name)
         
         self.color_frame.config(bg=self.selected_line.color)
+        self.stops_listbox.selection_clear(0, tk.END)
 
 
     def change_line_color(self, event=None):

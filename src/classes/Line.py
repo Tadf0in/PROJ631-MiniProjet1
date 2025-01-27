@@ -79,3 +79,36 @@ class Line:
         stop.previous.append([self.end, self])
         self.end = stop
         self.network.mergeDuplicateStops()
+        
+    
+    def removeStop(self, stop:Stop):
+        if self.start == self.end:
+            self.network.lines.remove(self)
+            
+        elif self.start == stop:
+            self.start = stop.getNextStopOnLine(self)
+            self.start.previous.remove([stop, self])
+            stop.next.remove([self.start, self])
+            
+        elif self.end == stop:
+            self.end = stop.getPreviousStopOnLine(self)
+            self.end.next.remove([stop, self])
+            stop.previous.remove([self.end, self])
+        
+        else:
+            previous_stop = stop.getPreviousStopOnLine(self)
+            next_stop = stop.getNextStopOnLine(self)
+            
+            previous_stop.next.remove([stop, self])
+            previous_stop.next.append([next_stop, self])
+            stop.previous.remove([previous_stop, self])
+            
+            next_stop.previous.remove([stop, self])
+            next_stop.previous.append([previous_stop, self])
+            stop.next.remove([next_stop, self])
+        
+        stop.line.remove(self)
+        
+
+        
+            

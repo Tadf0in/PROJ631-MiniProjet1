@@ -31,6 +31,7 @@ class Menu:
             selected_folder = folder_name.get()
             folder_path = os.path.join(data_folder_path + selected_folder)
             self.main_window.network = Network(folder_path)
+            self.main_window.selected_line = None
             
             self.main_window.update_lines_listbox()
 
