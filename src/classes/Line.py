@@ -16,7 +16,7 @@ class Line:
             }
         self._start = Stop(start_name, self, start_date)
         self._end = self._start
-        for i, stop_name in enumerate(data['regular_path'][1:], 1):
+        for stop_name in data['regular_path'][1:]:
             date = {
                 'regular_date_go': data['regular_date_go'][stop_name],
                 'regular_date_back': data['regular_date_back'][stop_name],
@@ -91,6 +91,14 @@ class Line:
     
     
     def addStop(self, stop_name, date: dict, check_merge=True):
+        if len(date) == 0:
+            date = {
+                'regular_date_go': ['-' for _ in range(len(self.data['regular_date_go'][self.start.name]))],
+                'regular_date_back': ['-' for _ in range(len(self.data['regular_date_back'][self.start.name]))],
+                'we_holidays_date_go': ['-' for _ in range(len(self.data['we_holidays_date_go'][self.start.name]))],
+                'we_holidays_date_back': ['-' for _ in range(len(self.data['we_holidays_date_back'][self.start.name]))],
+            }
+        
         stop = Stop(stop_name, self, date)
         self.end.next.append([stop, self])
         stop.previous.append([self.end, self])
