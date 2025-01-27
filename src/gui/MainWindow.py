@@ -34,23 +34,23 @@ class MainWindow:
         self.stops_listbox = tk.Listbox(self.lines_frame)
         self.stops_listbox.pack(side="right", fill="both", expand=True)
 
-        self.lines_listbox.bind("<<ListboxSelect>>", self.update_stops_listbox)
+        self.lines_listbox.bind("<<ListboxSelect>>", lambda event: update_stops_listbox(self))
         
         self.color_frame = tk.Frame(self.root, width=50, height=50, bg="white")
-        self.color_frame.pack(pady=10)
-        self.color_frame.bind("<Button-1>", self.change_line_color)
+        self.color_frame.pack(pady=10, side="left")
+        self.color_frame.bind("<Button-1>", lambda event: change_line_color(self))
         
         self.add_stop_button = tk.Button(self.root, text="+", command=lambda: add_stop(self, self.selected_line))
-        self.add_stop_button.pack(pady=5)
+        self.add_stop_button.pack(pady=5, padx=5, side="left")
 
         self.remove_stop_button = tk.Button(self.root, text="-", command=lambda: remove_stop(self, self.selected_line))
-        self.remove_stop_button.pack(pady=5)
+        self.remove_stop_button.pack(pady=5, padx=5, side="left")
 
         self.move_up_stop_button = tk.Button(self.root, text="Λ", command=lambda: move_up_stop(self, self.selected_line))
-        self.move_up_stop_button.pack(pady=5)
+        self.move_up_stop_button.pack(pady=5, padx=5, side="left")
 
         self.move_down_stop_button = tk.Button(self.root, text="V", command=lambda: move_down_stop(self, self.selected_line))
-        self.move_down_stop_button.pack(pady=5)
+        self.move_down_stop_button.pack(pady=5, padx=5, side="left")
 
 
     def show_graph(self):
@@ -89,44 +89,3 @@ class MainWindow:
 
         self.error_message.set("")
         plt.show()
-        
-
-    def update_lines_listbox(self):
-        if not self.network:
-            self.error_message.set("Aucun réseau chargé")
-            return
-
-        self.lines_listbox.delete(0, tk.END)
-        for line in self.network.lines:
-            self.lines_listbox.insert(tk.END, line.name)
-        
-        self.error_message.set("")
-        self.stops_listbox.delete(0, tk.END)
-
-
-    def update_stops_listbox(self, event=None):
-        selected_line_index = self.lines_listbox.curselection()
-        if not selected_line_index:
-            return
-
-        self.selected_line = self.network.lines[selected_line_index[0]]
-        self.stops_listbox.delete(0, tk.END)
-        for stop in self.selected_line.getAllStopsOnLine():
-            self.stops_listbox.insert(tk.END, stop.name)
-        
-        self.color_frame.config(bg=self.selected_line.color)
-        self.stops_listbox.selection_clear(0, tk.END)
-
-
-    def change_line_color(self, event=None):
-        selected_line_index = self.lines_listbox.curselection()
-        if not selected_line_index:
-            self.error_message.set("Aucune ligne sélectionnée")
-            return
-
-        selected_line = self.network.lines[selected_line_index[0]]
-        new_color = colorchooser.askcolor()[1]
-        if new_color:
-            selected_line.color = new_color
-            self.color_frame.config(bg=new_color)
-            self.error_message.set("")

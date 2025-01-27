@@ -1,5 +1,6 @@
 import tkinter as tk
 from src.classes.Network import Network
+from .edit_stop import update_lines_listbox
 import os
 
 
@@ -33,7 +34,7 @@ class Menu:
             self.main_window.network = Network(folder_path)
             self.main_window.selected_line = None
             
-            self.main_window.update_lines_listbox()
+            update_lines_listbox(self.main_window)
 
         popup = tk.Toplevel(self.main_window.root)
         popup.title("Sélectionner un dossier")

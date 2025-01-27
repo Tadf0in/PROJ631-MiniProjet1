@@ -73,17 +73,20 @@ class Line:
         return [stop for stop in self._parcours()]
     
     
-    def addStop(self, stop_name):
+    def addStop(self, stop_name, check_merge=True):
         stop = Stop(stop_name, self)
         self.end.next.append([stop, self])
         stop.previous.append([self.end, self])
         self.end = stop
-        self.network.mergeDuplicateStops()
-        
+        if check_merge:
+            self.network.mergeDuplicateStops()
+    
     
     def removeStop(self, stop:Stop):
-        if self.start == self.end:
+        if self.start == stop and self.end == stop:
             self.network.lines.remove(self)
+            self.start = None
+            self.end = None
             
         elif self.start == stop:
             self.start = stop.getNextStopOnLine(self)
@@ -109,6 +112,47 @@ class Line:
         
         stop.line.remove(self)
         
-
         
+    def moveUpStop(self, stop:Stop):
+        # Si 1er arrêt de la ligne = déjà tout en haut = rien à faire
+        if self.start == stop:
+            return 
+        
+        # Si 2eme arret de la ligne = cas particulier
+        old_start = None
+        if self.start.getNextStopOnLine(self) == stop:
+            old_start = self.start
+            self.removeStop(old_start) # Change le self.start
+            ok_stops_names = [self.start.name]
+        
+        else:      
+            # Récupère tous les arrêts précédents l'arrêt à déplacer
+            ok_stops_names = []
+            current = self.start
+            while current.getNextStopOnLine(self) != stop:
+                ok_stops_names.append(current.name)
+                current = current.getNextStopOnLine(self)
             
+        # Supprime tous les arrêts d'après (du précédent l'arrêt à déplacer, juqu'à la fin)
+        other_stops = self.getAllStopsOnLine()
+        
+        for other_stop in self.getAllStopsOnLine():
+            if other_stop.name in ok_stops_names:
+                other_stops.remove(other_stop)
+            else:
+                self.removeStop(other_stop)
+
+        if old_start:
+            # Réajoute l'ancien départ supprimé
+            self.addStop(old_start.name, check_merge=False)
+        else:
+            # Ajoute l'arrêt à déplacer
+            self.addStop(stop.name, check_merge=False)
+            other_stops.remove(stop)
+        
+        # Réajoute les autre arrêts
+        for other_stop in other_stops:
+            self.addStop(other_stop.name, check_merge=False)
+                
+        self.network.mergeDuplicateStops()
+                
