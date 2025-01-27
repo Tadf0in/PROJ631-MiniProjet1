@@ -8,14 +8,20 @@ class Line:
         self._network = network
         
         start_name = data['regular_path'][0]
-        self._start = Stop(start_name, self, data)
+        start_date = {
+                'regular_date_go': data['regular_date_go'][start_name],
+                'regular_date_back': data['regular_date_back'][start_name],
+                'we_holidays_date_go': data['we_holidays_date_go'][start_name],
+                'we_holidays_date_back': data['we_holidays_date_back'][start_name],
+            }
+        self._start = Stop(start_name, self, start_date)
         self._end = self._start
         for i, stop_name in enumerate(data['regular_path'][1:], 1):
             date = {
-                'regular_date_go': data['regular_date_go'][i],
-                'regular_date_back': data['regular_date_back'][i],
-                'we_holidays_date_go': data['we_holidays_date_go'][i],
-                'we_holidays_date_back': data['we_holidays_date_back'][i],
+                'regular_date_go': data['regular_date_go'][stop_name],
+                'regular_date_back': data['regular_date_back'][stop_name],
+                'we_holidays_date_go': data['we_holidays_date_go'][stop_name],
+                'we_holidays_date_back': data['we_holidays_date_back'][stop_name],
             }
             self.addStop(stop_name, date, check_merge=False)
             

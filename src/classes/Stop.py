@@ -5,7 +5,7 @@ class Stop:
         self._next = [] # [[stop, line], [stop, line], ...]
         self._line = [line] 
         self._date = {
-            line: date
+            line.name: date
         }
     
     @property
@@ -68,6 +68,8 @@ class Stop:
         self.previous.extend(other_stop.previous)
         self.next.extend(other_stop.next)
         self.line.extend(other_stop.line)
+        for line_name, date in other_stop.date.items():
+            self.date[line_name] = date
         
         for previous in other_stop.previous:
             for next in previous[0].next:

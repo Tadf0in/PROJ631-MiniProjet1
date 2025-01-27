@@ -90,7 +90,7 @@ def add_stop(main_window, selected_line):
     
 
 def remove_stop(main_window, selected_line):
-    selected_stop = verif_selected()
+    selected_stop = verif_selected(main_window, selected_line)
     if not selected_stop:
         return
 
@@ -102,7 +102,7 @@ def remove_stop(main_window, selected_line):
 
 
 def move_up_stop(main_window, selected_line):
-    selected_stop = verif_selected()
+    selected_stop = verif_selected(main_window, selected_line)
     if not selected_stop:
         return
 
@@ -112,7 +112,7 @@ def move_up_stop(main_window, selected_line):
     
 
 def move_down_stop(main_window, selected_line):
-    selected_stop = verif_selected()
+    selected_stop = verif_selected(main_window, selected_line)
     if not selected_stop:
         return
 
@@ -122,29 +122,51 @@ def move_down_stop(main_window, selected_line):
 
 
 def edit_date_stop(main_window, selected_line):
-    selected_stop = verif_selected()
+    selected_stop = verif_selected(main_window, selected_line)
     if not selected_stop:
         return
     
     popup = tk.Toplevel(main_window.root)
-    popup.title("Modifier les horaires de l'arrêt")
+    popup.title("Horaires de l'arrêt")
+    popup.geometry("1000x500")
 
-    for i, (key, value) in enumerate(selected_stop.date[selected_line].items()):
-        label = tk.Label(popup, text=key)
-        label.grid(row=0, column=i+1, padx=10, pady=10)
+    # Scrollbar
+    canvas = tk.Canvas(popup)
+    scrollbar = tk.Scrollbar(popup, orient="horizontal", command=canvas.xview)
+    scrollable_frame = tk.Frame(canvas)
+    scrollable_frame.bind(
+        "<Configure>",
+        lambda e: canvas.configure(
+            scrollregion=canvas.bbox("all")
+        )
+    )
+    canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+    canvas.configure(xscrollcommand=scrollbar.set)
+    canvas.pack(side="top", fill="x", expand=True)
+    scrollbar.pack(side="bottom", fill="x")
 
-        entry = tk.Entry(popup)
-        entry.insert(0, value)
-        entry.grid(row=1, column=i+1, padx=10, pady=10)
-        entry.key = key
-
+    # Colonnes
+    for i, (key, value) in enumerate(selected_stop.date[selected_line.name].items()):
+        row_name_label = tk.Label(scrollable_frame, text=key, anchor="e")
+        row_name_label.grid(row=i, column=0, pady=10)
+        
+        # Lignes = horaires
+        for j, date in enumerate(value, 1):
+            date_entry = tk.Entry(scrollable_frame, width=5)
+            date_entry.insert(0, date)
+            date_entry.grid(row=i, column=j)
+            date_entry.key = key
+            date_entry.i = j-1
+          
     def save_dates():
-        for widget in popup.winfo_children():
-            if isinstance(widget, tk.Entry):
-                selected_stop.date[selected_line][widget.key] = widget.get()
+        for widget in scrollable_frame.winfo_children():
+            if widget.winfo_class() == 'Entry':
+                key = widget.key
+                i = widget.i
+                selected_stop.date[selected_line.name][key][i] = widget.get()
         update_stops_listbox(main_window)
         popup.destroy()
         main_window.error_message.set("")
 
     save_button = tk.Button(popup, text="Enregistrer", command=save_dates)
-    save_button.grid(row=2, columnspan=len(selected_stop.date[selected_line]), pady=10)
+    save_button.pack()

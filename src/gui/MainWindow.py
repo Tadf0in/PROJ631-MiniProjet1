@@ -19,7 +19,7 @@ class MainWindow:
         self.menu = Menu(self)
         
         self.show_graph_button = tk.Button(self.root, text="Afficher le graphe", command=self.show_graph)
-        self.show_graph_button.pack()
+        self.show_graph_button.pack(pady=5)
         
         self.error_message = tk.StringVar()
         self.error_label = tk.Label(self.root, textvariable=self.error_message, fg="red")
