@@ -3,6 +3,7 @@ from tkinter import colorchooser
 from src.gui.Menu import Menu
 import networkx as nx
 import matplotlib.pyplot as plt
+from .edit_stop import *
 
 class MainWindow:
     def __init__(self, root):
@@ -10,6 +11,7 @@ class MainWindow:
         self.root.title("BUS")
         
         self.network = None 
+        self.selected_line = None
         
         self.menu_bar = tk.Menu(self.root)
         self.root.config(menu=self.menu_bar)
@@ -37,6 +39,18 @@ class MainWindow:
         self.color_frame = tk.Frame(self.root, width=50, height=50, bg="white")
         self.color_frame.pack(pady=10)
         self.color_frame.bind("<Button-1>", self.change_line_color)
+        
+        self.add_stop_button = tk.Button(self.root, text="+", command=lambda: add_stop(self, self.selected_line))
+        self.add_stop_button.pack(pady=5)
+
+        self.remove_stop_button = tk.Button(self.root, text="-", command=lambda: remove_stop(self, self.selected_line))
+        self.remove_stop_button.pack(pady=5)
+
+        self.move_up_stop_button = tk.Button(self.root, text="Λ", command=lambda: move_up_stop(self, self.selected_line))
+        self.move_up_stop_button.pack(pady=5)
+
+        self.move_down_stop_button = tk.Button(self.root, text="V", command=lambda: move_down_stop(self, self.selected_line))
+        self.move_down_stop_button.pack(pady=5)
 
 
     def show_graph(self):
@@ -89,20 +103,20 @@ class MainWindow:
         self.error_message.set("")
 
 
-    def update_stops_listbox(self, event):
+    def update_stops_listbox(self, event=None):
         selected_line_index = self.lines_listbox.curselection()
         if not selected_line_index:
             return
 
-        selected_line = self.network.lines[selected_line_index[0]]
+        self.selected_line = self.network.lines[selected_line_index[0]]
         self.stops_listbox.delete(0, tk.END)
-        for stop in selected_line.getAllStopsOnLine():
+        for stop in self.selected_line.getAllStopsOnLine():
             self.stops_listbox.insert(tk.END, stop.name)
         
-        self.color_frame.config(bg=selected_line.color)
+        self.color_frame.config(bg=self.selected_line.color)
 
 
-    def change_line_color(self, event):
+    def change_line_color(self, event=None):
         selected_line_index = self.lines_listbox.curselection()
         if not selected_line_index:
             self.error_message.set("Aucune ligne sélectionnée")

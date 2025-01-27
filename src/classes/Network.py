@@ -10,26 +10,10 @@ class Network:
         for filename in os.listdir(folder_path):
             data = get_data(os.path.join(folder_path, filename))
             line_name = filename.removesuffix('.txt')
-            line = Line(line_name, data)
+            line = Line(line_name, data, self)
             self._lines.append(line)        
         
-        # Récupère les arrêts en doublon (instances différentes mais représentants le même arrêt)
-        count_stops = {}
-        for stop in self.getAllStops():
-            if stop.name in count_stops:
-                count_stops[stop.name]['count'] += 1
-                count_stops[stop.name]['stops'].append(stop)
-            else:
-                count_stops[stop.name] = {
-                    'count': 1,
-                    'stops': [stop]
-                }
-        duplicate_stops = [count_stop['stops'] for count_stop in count_stops.values() if count_stop['count'] > 1]
-        
-        # Fusionne les arrêts en doublon
-        for stop in duplicate_stops:
-            for duplicated in stop[1:]:
-                stop[0].mergeStop(duplicated)
+        self.mergeDuplicateStops()
                 
     
     @property
@@ -50,6 +34,26 @@ class Network:
         stops = list(set(stops))
                 
         return stops
+    
+    
+    def mergeDuplicateStops(self):
+        # Récupère les arrêts en doublon (instances différentes mais représentants le même arrêt)
+        count_stops = {}
+        for stop in self.getAllStops():
+            if stop.name in count_stops:
+                count_stops[stop.name]['count'] += 1
+                count_stops[stop.name]['stops'].append(stop)
+            else:
+                count_stops[stop.name] = {
+                    'count': 1,
+                    'stops': [stop]
+                }
+        duplicate_stops = [count_stop['stops'] for count_stop in count_stops.values() if count_stop['count'] > 1]
+        
+        # Fusionne les arrêts en doublon
+        for stop in duplicate_stops:
+            for duplicated in stop[1:]:
+                stop[0].mergeStop(duplicated)
     
     # def dijkstra(self, start: str, end: str) -> list[str]:
     #     # Create a dictionary to store the shortest path to each stop

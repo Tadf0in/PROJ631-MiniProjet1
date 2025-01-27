@@ -1,9 +1,10 @@
 from .Stop import Stop
 
 class Line:
-    def __init__(self, name:str, data:dict, color:str='black'):
+    def __init__(self, name:str, data:dict, network:object, color:str='black'):
         self._name = name
         self._color = color
+        self._network = network
         
         start_name = data['regular_path'][0]
         self._start = Stop(start_name, self)
@@ -20,6 +21,10 @@ class Line:
     def name(self):
         return self._name
     
+    @name.setter
+    def name(self, value):
+        self._name = value
+    
     @property
     def color(self):
         return self._color
@@ -27,6 +32,14 @@ class Line:
     @color.setter
     def color(self, value):
         self._color = value
+
+    @property
+    def network(self):
+        return self._network
+    
+    @network.setter
+    def network(self, value):
+        self._network = value
 
     @property
     def start(self):
@@ -58,4 +71,11 @@ class Line:
     
     def getAllStopsOnLine(self):
         return [stop for stop in self._parcours()]
-        
+    
+    
+    def addStop(self, stop_name):
+        stop = Stop(stop_name, self)
+        self.end.next.append([stop, self])
+        stop.previous.append([self.end, self])
+        self.end = stop
+        self.network.mergeDuplicateStops()
