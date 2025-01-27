@@ -25,13 +25,18 @@ def get_data(data_file_name:str) -> dict:
     we_holidays_path = splited_content[3].split(' N ')
     we_holidays_date_go = dates2dic(splited_content[4])
     we_holidays_date_back = dates2dic(splited_content[5])
+    color = '#000000'
+    if len(splited_content) > 6:
+        color = splited_content[6]
+        
     return {
         'regular_path': regular_path,
         'regular_date_go': regular_date_go,
         'regular_date_back': regular_date_back,
         'we_holidays_path': we_holidays_path,
         'we_holidays_date_go': we_holidays_date_go,
-        'we_holidays_date_back': we_holidays_date_back
+        'we_holidays_date_back': we_holidays_date_back,
+        'color': color
     }
 
 

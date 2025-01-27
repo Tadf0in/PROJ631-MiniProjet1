@@ -1,9 +1,9 @@
 from .Stop import Stop
 
 class Line:
-    def __init__(self, name:str, data:dict, network:object, color:str='black'):
+    def __init__(self, name:str, data:dict, network:object):
         self._name = name
-        self._color = color
+        self._color = data['color']
         self._data = data
         self._network = network
         

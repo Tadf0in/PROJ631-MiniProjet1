@@ -6,6 +6,7 @@ from .Stop import Stop
 class Network:
     def __init__(self, folder_path:str):
         # Crée les lignes
+        self._folder_path = folder_path
         self._lines:list[Line] = []
         for filename in os.listdir(folder_path):
             data = get_data(os.path.join(folder_path, filename))
@@ -14,7 +15,14 @@ class Network:
             self._lines.append(line)        
         
         self.mergeDuplicateStops()
-                
+        
+    @property
+    def folder_path(self):
+        return self._folder_path
+    
+    @folder_path.setter
+    def folder_path(self, value):
+        self._folder_path = value      
     
     @property
     def lines(self):

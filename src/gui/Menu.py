@@ -50,8 +50,43 @@ class Menu:
         select_button.pack(side=tk.LEFT)
 
     def save_file(self):
-        # Logic for saving the current file
-        pass
+        for line in self.main_window.network.lines:
+            out = ""
+            for stop in line.getAllStopsOnLine():
+                out += stop.name + " N "
+            out = out[:-3]
+        
+            out += "\n\n"
+            
+            for key in ['regular_date_go', 'regular_date_back']:
+                for stop_name, dates in line.data[key].items():
+                    out += stop_name + " "
+                    for date in dates:
+                        out += date + " "
+                    out = out[:-1]
+                    out += "\n"
+                out += "\n"
+                
+            for stop in line.getAllStopsOnLine():
+                out += stop.name + " N "
+            out = out[:-3]
+            
+            out += "\n\n"
+            
+            for key in ['we_holidays_date_go', 'we_holidays_date_back']:
+                for stop_name, dates in line.data[key].items():
+                    out += stop_name + " "
+                    for date in dates:
+                        out += date + " "
+                    out = out[:-1]
+                    out += "\n"
+                out += "\n"
+
+            out += line.color
+            
+            with open(os.path.join(self.main_window.network.folder_path, f"{line.name}.txt"), 'w') as file:
+                file.write(out)
+                
 
     def save_as_file(self):
         # Logic for saving the current file with a new name
