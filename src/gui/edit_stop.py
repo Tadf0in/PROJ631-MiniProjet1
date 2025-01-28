@@ -78,7 +78,7 @@ def add_stop(main_window, selected_line):
     def save_stop_name():
         stop_name = stop_name_entry.get()
         if stop_name:
-            selected_line.addStop(stop_name, date={})
+            selected_line.addStop(stop_name)
             update_stops_listbox(main_window)
             popup.destroy()
             main_window.error_message.set("")

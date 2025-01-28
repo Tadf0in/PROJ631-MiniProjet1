@@ -7,23 +7,10 @@ class Line:
         self._data = data
         self._network = network
         
-        start_name = data['regular_path'][0]
-        start_date = {
-                'regular_date_go': data['regular_date_go'][start_name],
-                'regular_date_back': data['regular_date_back'][start_name],
-                'we_holidays_date_go': data['we_holidays_date_go'][start_name],
-                'we_holidays_date_back': data['we_holidays_date_back'][start_name],
-            }
-        self._start = Stop(start_name, self, start_date)
-        self._end = self._start
-        for stop_name in data['regular_path'][1:]:
-            date = {
-                'regular_date_go': data['regular_date_go'][stop_name],
-                'regular_date_back': data['regular_date_back'][stop_name],
-                'we_holidays_date_go': data['we_holidays_date_go'][stop_name],
-                'we_holidays_date_back': data['we_holidays_date_back'][stop_name],
-            }
-            self.addStop(stop_name, date, check_merge=False)
+        self._start = None
+        self._end = None
+        for stop_name in data['regular_path']:
+            self.addStop(stop_name, check_merge=False)
             
         
     @property
@@ -90,26 +77,39 @@ class Line:
         return [stop for stop in self._parcours()]
     
     
-    def addStop(self, stop_name, date: dict, check_merge=True):
-        if len(date) == 0:
-            date = {
-                'regular_date_go': ['-' for _ in range(len(self.data['regular_date_go'][self.start.name]))],
-                'regular_date_back': ['-' for _ in range(len(self.data['regular_date_back'][self.start.name]))],
-                'we_holidays_date_go': ['-' for _ in range(len(self.data['we_holidays_date_go'][self.start.name]))],
-                'we_holidays_date_back': ['-' for _ in range(len(self.data['we_holidays_date_back'][self.start.name]))],
-            }
+    def addStop(self, stop_name, date=None, check_merge=True):
+        if not date:
+            if stop_name in self.data['regular_path']:
+                date = {
+                    'regular_date_go': self.data['regular_date_go'][stop_name],
+                    'regular_date_back': self.data['regular_date_back'][stop_name],
+                    'we_holidays_date_go': self.data['we_holidays_date_go'][stop_name],
+                    'we_holidays_date_back': self.data['we_holidays_date_back'][stop_name],
+                }
+            else:
+                date = {
+                    'regular_date_go': ['-' for _ in range(len(self.data['regular_date_go'][self.data['regular_path'][0]]))],
+                    'regular_date_back': ['-' for _ in range(len(self.data['regular_date_back'][self.data['regular_path'][0]]))],
+                    'we_holidays_date_go': ['-' for _ in range(len(self.data['we_holidays_date_go'][self.data['regular_path'][0]]))],
+                    'we_holidays_date_back': ['-' for _ in range(len(self.data['we_holidays_date_back'][self.data['regular_path'][0]]))],
+                }
         
         stop = Stop(stop_name, self, date)
-        self.end.next.append([stop, self])
-        stop.previous.append([self.end, self])
-        self.end = stop
+        
+        if self.start == None and self.end == None:
+            self.start = stop
+            self.end = stop
+        else:     
+            self.end.next.append([stop, self])
+            stop.previous.append([self.end, self])
+            self.end = stop
         if check_merge:
             self.network.mergeDuplicateStops()
     
     
     def removeStop(self, stop:Stop):
         if self.start == stop and self.end == stop:
-            self.network.lines.remove(self)
+            # self.network.lines.remove(self)
             self.start = None
             self.end = None
             
