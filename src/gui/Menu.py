@@ -89,7 +89,7 @@ class Menu:
             
             if not folder_path:
                 folder_path = self.main_window.network.folder_path
-            with open(os.path.join(folder_path, f"{line.name}.txt"), 'w') as file:
+            with open(os.path.join(folder_path, f"{line.name}.txt"), 'w', encoding='utf-8') as file:
                 file.write(out) 
                 
 

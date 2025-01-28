@@ -2,6 +2,12 @@ import tkinter as tk
 from tkinter import colorchooser
 
 
+def update_comboboxs(main_window):
+    if main_window.network:
+        main_window.departure_select['values'] = main_window.network.getAllStops()
+        main_window.arrival_select['values'] = main_window.network.getAllStops()
+
+
 def update_lines_listbox(main_window):
     if not main_window.network:
         main_window.error_message.set("Aucun réseau chargé")
@@ -13,9 +19,13 @@ def update_lines_listbox(main_window):
     
     main_window.error_message.set("")
     main_window.stops_listbox.delete(0, tk.END)
+    
+    update_stops_listbox(main_window)
 
 
 def update_stops_listbox(main_window, event=None):
+    update_comboboxs(main_window)
+    
     selected_line_index = main_window.lines_listbox.curselection()
     if selected_line_index:
         selected_line_index = selected_line_index[0]
@@ -31,7 +41,7 @@ def update_stops_listbox(main_window, event=None):
     
     main_window.color_frame.config(bg=main_window.selected_line.color)
     main_window.stops_listbox.selection_clear(0, tk.END)
-
+    
 
 def change_line_color(main_window, event=None):
     selected_line_index = main_window.lines_listbox.curselection()
