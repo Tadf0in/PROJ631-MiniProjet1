@@ -56,9 +56,7 @@ class MainWindow:
         
         self.edit_stop_button = tk.Button(self.root, text="Modifier", command=lambda: edit_date_stop(self, self.selected_line))
         self.edit_stop_button.pack(pady=5, padx=5, side="right")
-    
-
-    
+  
 
     def show_graph(self):
         if not self.network:

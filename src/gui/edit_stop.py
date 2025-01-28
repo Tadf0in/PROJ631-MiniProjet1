@@ -4,8 +4,9 @@ from tkinter import colorchooser
 
 def update_comboboxs(main_window):
     if main_window.network:
-        main_window.departure_select['values'] = main_window.network.getAllStops()
-        main_window.arrival_select['values'] = main_window.network.getAllStops()
+        stops = main_window.network.getAllStops()
+        main_window.departure_select['values'] = [stop.name for stop in stops]
+        main_window.arrival_select['values'] = [stop.name for stop in stops]
 
 
 def update_lines_listbox(main_window):

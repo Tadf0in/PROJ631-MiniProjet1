@@ -83,41 +83,51 @@ class Network:
             time = 'hh:mm'
             date_go = stop.date[line][key_go]
             date_back = stop.date[line][key_back]
+            
     
-    
-    # def dijkstra(self, start: str, end: str) -> list[str]:
-    #     # Create a dictionary to store the shortest path to each stop
-    #     shortest_paths = {stop: (None, float('inf')) for stop in self.getAllStops()}
-    #     current_stop = self.getStop(start)
-    #     shortest_paths[current_stop] = (None, 0)
-    #     visited = set()
-    #     priority_queue = [(0, current_stop)]
+    def dijkstra(self, start_name:Stop, end_name:Stop, date, hour, minute):
+        start = self.getStop(start_name)
+        end = self.getStop(end_name)
+        
+        # Initialisation
+        unvisited = self.getAllStops()
+        paths = {stop.name: (None, float('inf')) for stop in unvisited}
+        paths[start.name] = (start, 0)
+        
+        # Calcule les distances
+        while len(unvisited) > 0:
+            # On choisit le prochain noeud avec la plus petite distance
+            current = min(unvisited, key=lambda stop: paths[stop.name][1])
+            if paths[current.name][1] == float('inf'):
+                return None # Pas de chemin
+            
+            # print(unvisited, '\n', paths, '\n', current, '\n')
+            
+            # Si destination atteinte on s'arrête
+            if current == end:
+                break
+            
+            # Met à jour les distances
+            for linked_stop, line in current.previous + current.next:
+                weight = 1 # linked_stop.getWeight()
+                current_distance = paths[current.name][1]
+                old_distance = paths[linked_stop.name][1]
+                new_distance = current_distance + weight
+                
+                if new_distance < old_distance:
+                    paths[linked_stop.name] = (current, new_distance)
+                
+            unvisited.remove(current)        
+                
+        # Récupère le plus court chemin
+        path = []
+        stop = end
+        while stop and stop != start:
+            path.append(stop)
+            stop = paths[stop.name][0]
+        path.append(start)
 
-    #     while priority_queue:
-    #         current_distance, current_stop = heapq.heappop(priority_queue)
-    #         visited.add(current_stop)
-
-    #         if current_stop.name == end:
-    #             break
-
-    #         for next_stop in current_stop.next:
-    #             weight = 1  # Assuming each stop has equal weight
-    #             distance = current_distance + weight
-
-    #             if next_stop not in visited:
-    #                 old_cost = shortest_paths[next_stop][1]
-    #                 if distance < old_cost:
-    #                     shortest_paths[next_stop] = (current_stop, distance)
-    #                     heapq.heappush(priority_queue, (distance, next_stop))
-
-    #     path = []
-    #     stop = self.getStop(end)
-    #     while stop:
-    #         path.append(stop.name)
-    #         next_stop = shortest_paths[stop][0]
-    #         stop = next_stop
-
-    #     return path[::-1]
+        return path[::-1]
     
 
     def shortest_path(self, start:str, end:str) -> list[str]:
