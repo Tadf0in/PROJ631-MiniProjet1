@@ -36,7 +36,7 @@ class MainWindow:
 
         self.lines_listbox.bind("<<ListboxSelect>>", lambda event: update_stops_listbox(self))
         
-        self.color_frame = tk.Frame(self.root, width=50, height=50, bg="white")
+        self.color_frame = tk.Frame(self.root, width=50, height=50, bg="black")
         self.color_frame.pack(pady=10, side="left")
         self.color_frame.bind("<Button-1>", lambda event: change_line_color(self))
         

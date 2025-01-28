@@ -68,6 +68,21 @@ class Network:
         for stop in duplicate_stops:
             for duplicated in stop[1:]:
                 stop[0].mergeStop(duplicated)
+                
+        
+    def get_weights(self, stop:Stop, datetime):
+        if False: # isFerieOrHolidays
+            key_go = 'we_holidays_date_go'
+            key_back = 'we_holidays_date_back'
+        else:
+            key_go = 'regular_date_go'
+            key_back = 'regular_date_back'
+        
+        weights = {}
+        for line in stop.line:
+            time = 'hh:mm'
+            date_go = stop.date[line][key_go]
+            date_back = stop.date[line][key_back]
     
     
     # def dijkstra(self, start: str, end: str) -> list[str]:

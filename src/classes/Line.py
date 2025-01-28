@@ -74,7 +74,10 @@ class Line:
         
     
     def getAllStopsOnLine(self):
-        return [stop for stop in self._parcours()]
+        stops = [stop for stop in self._parcours()]
+        if len(stops) == 1 and stops[0] == None:
+            return []
+        return stops
     
     
     def addStop(self, stop_name, date=None, check_merge=True):
@@ -87,11 +90,12 @@ class Line:
                     'we_holidays_date_back': self.data['we_holidays_date_back'][stop_name],
                 }
             else:
+                start_name = self.data['regular_path'][0]
                 date = {
-                    'regular_date_go': ['-' for _ in range(len(self.data['regular_date_go'][self.data['regular_path'][0]]))],
-                    'regular_date_back': ['-' for _ in range(len(self.data['regular_date_back'][self.data['regular_path'][0]]))],
-                    'we_holidays_date_go': ['-' for _ in range(len(self.data['we_holidays_date_go'][self.data['regular_path'][0]]))],
-                    'we_holidays_date_back': ['-' for _ in range(len(self.data['we_holidays_date_back'][self.data['regular_path'][0]]))],
+                    'regular_date_go': ['-' for _ in range(len(self.data['regular_date_go'][start_name]))],
+                    'regular_date_back': ['-' for _ in range(len(self.data['regular_date_back'][start_name]))],
+                    'we_holidays_date_go': ['-' for _ in range(len(self.data['we_holidays_date_go'][start_name]))],
+                    'we_holidays_date_back': ['-' for _ in range(len(self.data['we_holidays_date_back'][start_name]))],
                 }
         
         stop = Stop(stop_name, self, date)
@@ -103,13 +107,13 @@ class Line:
             self.end.next.append([stop, self])
             stop.previous.append([self.end, self])
             self.end = stop
+            
         if check_merge:
             self.network.mergeDuplicateStops()
     
     
     def removeStop(self, stop:Stop):
         if self.start == stop and self.end == stop:
-            # self.network.lines.remove(self)
             self.start = None
             self.end = None
             
