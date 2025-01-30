@@ -2,7 +2,7 @@ import os
 from ..data2dict import get_data
 from .Line import Line
 from .Stop import Stop
-from datetime import timedelta
+from datetime import datetime
 
 
 class Network:
@@ -42,6 +42,7 @@ class Network:
 
         # Supprime les doublons (doublons d'une même instance)
         stops = list(set(stops))
+        stops.sort(key=lambda stop: stop.name)
                 
         return stops
     
@@ -78,21 +79,28 @@ class Network:
         
         # Initialisation
         unvisited = self.getAllStops()
-        paths = {stop.name: (None, float('inf')) for stop in unvisited}
-        paths[start.name] = (start, 0)
+        paths = {stop.name: (None, float('inf'), float('inf'), datetime.max) for stop in unvisited}
+        paths[start.name] = (start, 0, 0, start_datetime) # (stop, nb_arcs (shortest), tps trajet (fastest), datetime arrivée (foremost))
+        
+        # L'aglorithme va déterminer sur quel critère on se base pour prendre le minimum
+        index_algos = {
+            "Shortest": 1,
+            "Fastest": 2,
+            "Foremost": 3
+        }
+        index_algo = index_algos[algorithm]             
         
         # Calcule les distances
         while len(unvisited) > 0:
             # On choisit le prochain noeud avec la plus petite distance
-            current = min(unvisited, key=lambda stop: paths[stop.name][1])
-            if paths[current.name][1] == float('inf'):
+            current = min(unvisited, key=lambda stop: paths[stop.name][index_algo])
+                        
+            if paths[current.name][index_algo] == float('inf'):
                 return None # Pas de chemin
             
             # Si destination atteinte on s'arrête
             if current == end:
                 break
-            
-            print(unvisited, '\n', paths, '\n', current)
             
             # Met à jour les distances
             for linked_stop, line in current.previous + current.next:
@@ -101,41 +109,36 @@ class Network:
                 if linked_stop not in unvisited:
                     continue
                 
-                current_distance = paths[current.name][1]
-                current_datetime = start_datetime + timedelta(minutes=current_distance)
+                # Calcule le nouveau nb d'arcs
+                current_nb_edges = paths[current.name][index_algos['Shortest']]
+                new_nb_edges = current_nb_edges + 1
                 
-                weight = current.getWeight(linked_stop, current_datetime, algorithm)
+                # Calcul la nouvelle heure d'arrivée
+                current_datetime = paths[current.name][index_algos["Foremost"]]
+                current_wait_datetime, new_datetime = current.getArrivalHoraire(linked_stop, current_datetime)
                 
-                old_distance = paths[linked_stop.name][1]
-                new_distance = current_distance + weight
+                # Calcule le nouveau temps de trajet
+                travel_time = int((new_datetime - current_wait_datetime).total_seconds() / 60)
+                wait_time = int((current_wait_datetime - current_datetime).total_seconds() / 60)
+                current_time = paths[current.name][index_algos['Fastest']]
+                new_time = current_time + travel_time
+                if current != start:
+                    new_time += wait_time
                 
-                if new_distance < old_distance:
-                    paths[linked_stop.name] = (current, new_distance)
-                
+                # Si plus petit sur le critère de l'algo alors on remplace
+                new_weight = (current, new_nb_edges, new_time, new_datetime)
+                if new_weight[index_algo] < paths[linked_stop.name][index_algo]:
+                    paths[linked_stop.name] = new_weight
+                    
             unvisited.remove(current)        
                 
         # Récupère le plus court chemin
         path = []
         stop = end
         while stop and stop != start:
-            path.append(stop)
-            stop = paths[stop.name][0]
-        path.append(start)
+            path_stop = paths[stop.name]
+            path.append((stop, *path_stop[1:]))
+            stop = path_stop[0]
+        path.append((start, *paths[start.name][1:]))
 
         return path[::-1]
-    
-
-    def shortest_path(self, start_name:str, end_name:str, start_datetime) -> list[Stop]:
-        shortest = self.dijkstra(start_name, end_name, start_datetime, "Shortest")
-        print("Shortest : ", shortest)
-        return shortest
-    
-    
-    def fastest_path(self, start_name:str, end_name:str, start_datetime) -> list[Stop]:
-        fastest = self.dijkstra(start_name, end_name, start_datetime, "Fastest")
-        print("Fastest : ", fastest)
-        return fastest
-    
-    
-    def foremost_path(self, start_name:str, end_name:str) -> list[Stop]:
-        pass

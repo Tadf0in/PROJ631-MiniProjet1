@@ -75,20 +75,21 @@ class Path:
         date = datetime.strptime(date, '%Y-%m-%d').date()
         start_datetime = datetime.combine(date, datetime.min.time()).replace(hour=int(hour), minute=int(minute))
         
-        if algorithm == "Shortest":
-            path = self.main_window.network.shortest_path(departure, arrival, start_datetime)
-        elif algorithm == "Fastest":
-            path = self.main_window.network.fastest_path(departure, arrival, start_datetime)
-        elif algorithm == "Foremost":
-            path = self.main_window.network.foremost_path(departure, arrival, start_datetime)
-        else:
-            path = None
+        path = self.main_window.network.dijkstra(departure, arrival, start_datetime, algorithm)
         
         if path:
             path_str = ""
-            for stop in path:
-                path_str += stop.name + " -> "
+            for stop, nb_edges, time, arrival_datetime in path:
+                path_str += stop.name + "("+ str(time) + ") -> "
             path_str = path_str[:-4]
+            
+            if algorithm == "Shortest":
+                path_str += '\n' + str(nb_edges) + ' arc(s)'
+            elif algorithm == "Fastest":
+                path_str += '\n' + str(time) + ' minute(s)'
+            elif algorithm == "Fastest":
+                path_str += '\n Arrivée à ' + str(arrival_datetime)
+                
         else:
             path_str = "Aucun chemin"
         self.main_window.error_message.set(path_str)

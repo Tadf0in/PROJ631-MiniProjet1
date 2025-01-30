@@ -95,71 +95,62 @@ class Stop:
     
     def isFerieOrHolidays(self, date:datetime) -> bool:
         return JoursFeries.is_bank_holiday(date, zone="Métropole") or SchoolHolidayDates().is_holiday(date)
-                
-        
-    def getWeight(self, to_stop:object, at_datetime:datetime, algorithm:str) -> int:
-        # Shortest = juste en nombre d'arcs
-        if algorithm == "Shortest":
-            return 1 
-        
+    
+    
+    def getLineDirection(self, to_stop:object, at_datetime:datetime) -> tuple:
         # Férié ou pas
         if self.isFerieOrHolidays(at_datetime.date()):
             key = 'we_holidays_date_'
         else:
             key = 'regular_date_'
-        
+            
         # Détermine le sens de la ligne
         for next_stop, line in self.next:
             if next_stop == to_stop:
                 key += 'go'
-                break
+                return line, key
         else:
             for previous_stop, line in self.previous:
                 if previous_stop == to_stop:
                     key += 'back'
-                    break
-            else:
-                return float('inf') # Arrêts pas reliés (ça ne devrait pas arriver)
-        
-        print(key, self, to_stop)
-
-        # Horaire de l'arrêt de départ
-        for i, from_horaire in enumerate(self.date[line.name][key]):
-            if from_horaire == '-':
+                    return line, key
+                
+    
+    def getNextHoraire(self, at_datetime:datetime, line:object, direction:str) -> tuple[int, datetime]:
+        for i, horaire in enumerate(self.date[line.name][direction]):
+            if horaire == '-':
                 continue
             
-            from_horaire_time = datetime.strptime(from_horaire, '%H:%M').time()
-            from_horaire_datetime = datetime.combine(at_datetime.date(), from_horaire_time)
+            horaire_time = datetime.strptime(horaire, '%H:%M').time()
+            horaire_datetime = datetime.combine(at_datetime.date(), horaire_time)
             
-            if from_horaire_datetime >= at_datetime:
-                print(from_horaire_datetime)
-                break
+            if horaire_datetime >= at_datetime:
+                return i, horaire_datetime
         
         # Plus du bus aujourd'hui -> celui du lendemain matin
         else:
             tomorrow = datetime.combine(at_datetime.date(), datetime.min.time()) + timedelta(days=1)
-            print('tomorrow ', tomorrow)
-            return self.getWeight(to_stop, tomorrow, algorithm)
+            return self.getNextHoraire(tomorrow, line, direction)
+        
+        
+    def getArrivalHoraire(self, to_stop:object, at_datetime:datetime) -> tuple[datetime, datetime]:     
+        line, key = self.getLineDirection(to_stop, at_datetime)
+        if not key:
+            return float('inf') # Arrêts pas reliés (ça ne devrait pas arriver)
+        
+        index_horaire, from_horaire_datetime = self.getNextHoraire(at_datetime, line, key)
         
         # Horaire d'arrivée au prochain arrêt
-        for to_horaire in to_stop.date[line.name][key][i:]:
+        for to_horaire in to_stop.date[line.name][key][index_horaire:]:
             if to_horaire != '-':
                 break   
         
-        # Terminus pour le reste de la journée
+        # Terminus pour le reste de la journée -> prochain bus le lendemain
         else:
             tomorrow = datetime.combine(at_datetime.date(), datetime.min.time()) + timedelta(days=1)
-            print('terminus ', tomorrow)
-            return self.getWeight(to_stop, tomorrow, algorithm) 
+            return to_stop.getNextHoraire(tomorrow, line, key)
         
         to_horaire_time = datetime.strptime(to_horaire, '%H:%M').time()
         to_horaire_datetime = datetime.combine(at_datetime.date(), to_horaire_time)
-        print(at_datetime, from_horaire_datetime, to_horaire_datetime)
-                   
-        # Temps entre les 2 arrêts
-        travel_time = int((to_horaire_datetime - from_horaire_datetime).total_seconds() / 60)
-        wait_time = int((from_horaire_datetime - at_datetime).total_seconds() / 60) 
         
-        total_time = travel_time + wait_time
-        print(travel_time, wait_time, total_time)
-        return total_time
+        return from_horaire_datetime, to_horaire_datetime
