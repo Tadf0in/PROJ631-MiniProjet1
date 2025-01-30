@@ -2,6 +2,8 @@ import os
 from ..data2dict import get_data
 from .Line import Line
 from .Stop import Stop
+from datetime import timedelta
+
 
 class Network:
     def __init__(self, folder_path:str):
@@ -68,24 +70,9 @@ class Network:
         for stop in duplicate_stops:
             for duplicated in stop[1:]:
                 stop[0].mergeStop(duplicated)
-                
-        
-    def get_weights(self, stop:Stop, datetime):
-        if False: # isFerieOrHolidays
-            key_go = 'we_holidays_date_go'
-            key_back = 'we_holidays_date_back'
-        else:
-            key_go = 'regular_date_go'
-            key_back = 'regular_date_back'
-        
-        weights = {}
-        for line in stop.line:
-            time = 'hh:mm'
-            date_go = stop.date[line][key_go]
-            date_back = stop.date[line][key_back]
-            
+                   
     
-    def dijkstra(self, start_name:Stop, end_name:Stop, date, hour, minute):
+    def dijkstra(self, start_name:str, end_name:str, start_datetime, algorithm) -> list[Stop]:
         start = self.getStop(start_name)
         end = self.getStop(end_name)
         
@@ -101,16 +88,24 @@ class Network:
             if paths[current.name][1] == float('inf'):
                 return None # Pas de chemin
             
-            # print(unvisited, '\n', paths, '\n', current, '\n')
-            
             # Si destination atteinte on s'arrête
             if current == end:
                 break
             
+            print(unvisited, '\n', paths, '\n', current)
+            
             # Met à jour les distances
             for linked_stop, line in current.previous + current.next:
-                weight = 1 # linked_stop.getWeight()
+                
+                # Si arrêt déjà visiter on skip
+                if linked_stop not in unvisited:
+                    continue
+                
                 current_distance = paths[current.name][1]
+                current_datetime = start_datetime + timedelta(minutes=current_distance)
+                
+                weight = current.getWeight(linked_stop, current_datetime, algorithm)
+                
                 old_distance = paths[linked_stop.name][1]
                 new_distance = current_distance + weight
                 
@@ -130,13 +125,17 @@ class Network:
         return path[::-1]
     
 
-    def shortest_path(self, start:str, end:str) -> list[str]:
-        pass
+    def shortest_path(self, start_name:str, end_name:str, start_datetime) -> list[Stop]:
+        shortest = self.dijkstra(start_name, end_name, start_datetime, "Shortest")
+        print("Shortest : ", shortest)
+        return shortest
     
     
-    def fastest_path(self, start:str, end:str) -> list[str]:
-        pass
+    def fastest_path(self, start_name:str, end_name:str, start_datetime) -> list[Stop]:
+        fastest = self.dijkstra(start_name, end_name, start_datetime, "Fastest")
+        print("Fastest : ", fastest)
+        return fastest
     
     
-    def foremost_path(self, start:str, end:str) -> list[str]:
+    def foremost_path(self, start_name:str, end_name:str) -> list[Stop]:
         pass

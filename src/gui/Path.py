@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkcalendar import DateEntry
+from datetime import datetime
 
 
 class Path:
@@ -27,15 +28,15 @@ class Path:
         self.main_window.date_entry = DateEntry(self.path_frame, date_pattern='y-mm-dd')
         self.main_window.date_entry.pack(pady=5, padx=5, side="left")
         
-        self.main_window.hour_entry = ttk.Combobox(self.path_frame, width=3)
-        self.main_window.hour_entry.pack(pady=5, padx=5, side="left")
-        self.main_window.hour_entry['values'] = [f"{i:02d}" for i in range(24)]
-        self.main_window.hour_entry.set("00")
+        self.main_window.hour_select = ttk.Combobox(self.path_frame, width=3)
+        self.main_window.hour_select.pack(pady=5, padx=5, side="left")
+        self.main_window.hour_select['values'] = [f"{i:02d}" for i in range(24)]
+        self.main_window.hour_select.set("00")
         
-        self.main_window.minute_entry = ttk.Combobox(self.path_frame, width=3)
-        self.main_window.minute_entry.pack(pady=5, padx=5, side="left")
-        self.main_window.minute_entry['values'] = [f"{i:02d}" for i in range(60)]
-        self.main_window.minute_entry.set("00")
+        self.main_window.minute_select = ttk.Combobox(self.path_frame, width=3)
+        self.main_window.minute_select.pack(pady=5, padx=5, side="left")
+        self.main_window.minute_select['values'] = [f"{i:02d}" for i in range(60)]
+        self.main_window.minute_select.set("00")
         
         self.path_frame.pack(pady=10)
         
@@ -47,6 +48,7 @@ class Path:
         self.main_window.algorithm_select = ttk.Combobox(self.algorithm_frame)
         self.main_window.algorithm_select.pack(pady=5, padx=5, side="left")
         self.main_window.algorithm_select['values'] = ["Shortest", "Fastest", "Foremost"]
+        self.main_window.algorithm_select.set("Shortest")
         
         self.main_window.calculate_route_button = tk.Button(self.algorithm_frame, text="Calculer le trajet", command=self.calculate_route)
         self.main_window.calculate_route_button.pack(pady=5, padx=5, side="left")
@@ -57,9 +59,10 @@ class Path:
     def calculate_route(self):
         departure = self.main_window.departure_select.get()
         arrival = self.main_window.arrival_select.get()
-        date = self.main_window.date_entry.get_date().strftime('%Y-%m-%d')
-        hour = self.main_window.hour_entry.get()
-        minute = self.main_window.minute_entry.get()
+        date = self.main_window.date_entry.get()
+        hour = self.main_window.hour_select.get()
+        minute = self.main_window.minute_select.get()
+        algorithm = self.main_window.algorithm_select.get()
 
         datetime_departure = f"{date} {hour}:{minute}"
         
@@ -68,7 +71,18 @@ class Path:
             return
         
         self.main_window.error_message.set("Calcul du trajet en cours...")
-        path = self.main_window.network.dijkstra(departure, arrival, date, hour, minute)
+        
+        date = datetime.strptime(date, '%Y-%m-%d').date()
+        start_datetime = datetime.combine(date, datetime.min.time()).replace(hour=int(hour), minute=int(minute))
+        
+        if algorithm == "Shortest":
+            path = self.main_window.network.shortest_path(departure, arrival, start_datetime)
+        elif algorithm == "Fastest":
+            path = self.main_window.network.fastest_path(departure, arrival, start_datetime)
+        elif algorithm == "Foremost":
+            path = self.main_window.network.foremost_path(departure, arrival, start_datetime)
+        else:
+            path = None
         
         if path:
             path_str = ""
