@@ -130,6 +130,11 @@ class Network:
                 if new_weight[index_algo] < paths[linked_stop.name][index_algo]:
                     paths[linked_stop.name] = new_weight
                     
+                # Ambiguïté si même distance -> regarde autre critère
+                elif algorithm == "Fastest" and new_weight[index_algos['Fastest']] == paths[linked_stop.name][index_algos['Fastest']]:
+                    if new_weight[index_algos['Foremost']] < paths[linked_stop.name][index_algos['Foremost']]:
+                        paths[linked_stop.name] = new_weight
+                    
             unvisited.remove(current)        
                 
         # Récupère le plus court chemin

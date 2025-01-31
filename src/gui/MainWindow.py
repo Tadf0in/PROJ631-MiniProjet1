@@ -62,6 +62,8 @@ class MainWindow:
         if not self.network:
             self.error_message.set("Aucun réseau chargé")
             return
+        
+        plt.clf()
             
         def margin_name(name, margin=3):
             return " " * margin + name

@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import ttk
 from tkcalendar import DateEntry
 from datetime import datetime
+import networkx as nx
+import matplotlib.pyplot as plt
 
 
 class Path:
@@ -53,7 +55,7 @@ class Path:
         self.main_window.calculate_route_button = tk.Button(self.algorithm_frame, text="Calculer le trajet", command=self.calculate_route)
         self.main_window.calculate_route_button.pack(pady=5, padx=5, side="left")
         
-        self.algorithm_frame.pack(pady=10)
+        self.algorithm_frame.pack(pady=10)      
         
         
     def calculate_route(self):
@@ -75,20 +77,25 @@ class Path:
         date = datetime.strptime(date, '%Y-%m-%d').date()
         start_datetime = datetime.combine(date, datetime.min.time()).replace(hour=int(hour), minute=int(minute))
         
-        path = self.main_window.network.dijkstra(departure, arrival, start_datetime, algorithm)
+        try:
+            path = self.main_window.network.dijkstra(departure, arrival, start_datetime, algorithm)
+        except RecursionError:
+            self.main_window.error_message.set("Aucun bus pour cet itinéraire")
+            return
+
         
         if path:
             path_str = ""
             for stop, nb_edges, time, arrival_datetime in path:
-                path_str += stop.name + "("+ str(time) + ") -> "
+                path_str += stop.name + " -> "
             path_str = path_str[:-4]
             
-            if algorithm == "Shortest":
-                path_str += '\n' + str(nb_edges) + ' arc(s)'
-            elif algorithm == "Fastest":
-                path_str += '\n' + str(time) + ' minute(s)'
-            elif algorithm == "Fastest":
-                path_str += '\n Arrivée à ' + str(arrival_datetime)
+            # if algorithm == "Shortest":
+            path_str += '\n' + str(nb_edges) + ' arc(s)'
+            # elif algorithm == "Fastest":
+            path_str += '\n' + str(time) + ' minute(s)'
+            # elif algorithm == "Fastest":
+            path_str += '\n Arrivée à ' + str(arrival_datetime)
                 
         else:
             path_str = "Aucun chemin"
