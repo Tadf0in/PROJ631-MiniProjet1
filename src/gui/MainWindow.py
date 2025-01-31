@@ -1,6 +1,6 @@
 import tkinter as tk
-from tkinter import colorchooser
 from src.gui.Menu import Menu
+from src.gui.Path import Path
 import networkx as nx
 import matplotlib.pyplot as plt
 from .edit_stop import *
@@ -16,10 +16,12 @@ class MainWindow:
         self.menu_bar = tk.Menu(self.root)
         self.root.config(menu=self.menu_bar)
 
-        self.menu = Menu(self)
+        Menu(self)
         
         self.show_graph_button = tk.Button(self.root, text="Afficher le graphe", command=self.show_graph)
-        self.show_graph_button.pack()
+        self.show_graph_button.pack(pady=5)
+        
+        Path(self)
         
         self.error_message = tk.StringVar()
         self.error_label = tk.Label(self.root, textvariable=self.error_message, fg="red")
@@ -36,27 +38,32 @@ class MainWindow:
 
         self.lines_listbox.bind("<<ListboxSelect>>", lambda event: update_stops_listbox(self))
         
-        self.color_frame = tk.Frame(self.root, width=50, height=50, bg="white")
+        self.color_frame = tk.Frame(self.root, width=50, height=50, bg="black")
         self.color_frame.pack(pady=10, side="left")
         self.color_frame.bind("<Button-1>", lambda event: change_line_color(self))
         
         self.add_stop_button = tk.Button(self.root, text="+", command=lambda: add_stop(self, self.selected_line))
-        self.add_stop_button.pack(pady=5, padx=5, side="left")
+        self.add_stop_button.pack(pady=5, padx=5, side="right")
 
         self.remove_stop_button = tk.Button(self.root, text="-", command=lambda: remove_stop(self, self.selected_line))
-        self.remove_stop_button.pack(pady=5, padx=5, side="left")
+        self.remove_stop_button.pack(pady=5, padx=5, side="right")
 
         self.move_up_stop_button = tk.Button(self.root, text="Λ", command=lambda: move_up_stop(self, self.selected_line))
-        self.move_up_stop_button.pack(pady=5, padx=5, side="left")
+        self.move_up_stop_button.pack(pady=5, padx=5, side="right")
 
         self.move_down_stop_button = tk.Button(self.root, text="V", command=lambda: move_down_stop(self, self.selected_line))
-        self.move_down_stop_button.pack(pady=5, padx=5, side="left")
-
+        self.move_down_stop_button.pack(pady=5, padx=5, side="right")
+        
+        self.edit_stop_button = tk.Button(self.root, text="Modifier", command=lambda: edit_date_stop(self, self.selected_line))
+        self.edit_stop_button.pack(pady=5, padx=5, side="right")
+  
 
     def show_graph(self):
         if not self.network:
             self.error_message.set("Aucun réseau chargé")
             return
+        
+        plt.clf()
             
         def margin_name(name, margin=3):
             return " " * margin + name

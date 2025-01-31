@@ -25,23 +25,33 @@ def get_data(data_file_name:str) -> dict:
     we_holidays_path = splited_content[3].split(' N ')
     we_holidays_date_go = dates2dic(splited_content[4])
     we_holidays_date_back = dates2dic(splited_content[5])
+    color = '#000000'
+    if len(splited_content) > 6:
+        color = splited_content[6]
+        
     return {
         'regular_path': regular_path,
         'regular_date_go': regular_date_go,
         'regular_date_back': regular_date_back,
         'we_holidays_path': we_holidays_path,
         'we_holidays_date_go': we_holidays_date_go,
-        'we_holidays_date_back': we_holidays_date_back
+        'we_holidays_date_back': we_holidays_date_back,
+        'color': color
     }
 
 
 if __name__ == '__main__':
-    # data_file_name = 'data/sibra/1_Poisy-ParcDesGlaisins.txt' 
-    data_file_name = 'data/sibra/2_Piscine-Patinoire_Campus.txt'
-    #data_file_name = 'data/sibra/4_Seynod_Neigeos-Campus.txt'
+    # data_file_name = 'src/data/sibra/1_Poisy-ParcDesGlaisins.txt' 
+    data_file_name = 'src/data/sibra/2_Piscine-Patinoire_Campus.txt'
+    #data_file_name = 'src/data/sibra/4_Seynod_Neigeos-Campus.txt'
     
     data = get_data(data_file_name)
     
-    print("regular_path", data['regular_path'])
+    # print("regular_path", data['regular_path'])
     # print("regular_date_go", data['regular_date_go'])
     # print("regular_date_back", data['regular_date_back'])
+    
+    for e in data:
+        if not str(e).split('_')[-1] == 'path':
+            for f in data[e]:
+                print(len(data[e][f]))
